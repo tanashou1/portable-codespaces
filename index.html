@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="スマホからGitHub Codespacesを快適に使うためのWebアプリ">
+  <title>Portable Codespaces</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="vendors/github-dark.min.css">
+</head>
+<body>
+
+  <!-- ===== Token Setup Modal ===== -->
+  <div id="token-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-backdrop"></div>
+    <div class="modal-box">
+      <h2 id="modal-title">🚀 Portable Codespaces</h2>
+      <p>GitHubのPersonal Access Tokenを入力してください。</p>
+      <p class="hint">
+        必要なスコープ:<br>
+        <code>codespaces</code>（Codespaces一覧）、<code>repo</code>（コード閲覧）、<code>models:read</code>（AI チャット）
+      </p>
+      <input type="password" id="modal-pat" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" aria-label="Personal Access Token">
+      <button id="modal-save" class="btn-primary">開始する</button>
+      <p class="hint-small">⚠️ トークンはこのブラウザの localStorage にのみ保存されます。共有端末では利用しないでください。</p>
+    </div>
+  </div>
+
+  <!-- ===== Header ===== -->
+  <header class="app-header">
+    <span class="app-title">Portable Codespaces</span>
+    <button id="header-settings" class="icon-btn" title="設定" aria-label="設定">⚙️</button>
+  </header>
+
+  <!-- ===== Main Content ===== -->
+  <main class="app-main">
+
+    <!-- Codespaces Tab -->
+    <section id="tab-codespaces" class="tab-content active" role="tabpanel" aria-label="Codespaces">
+      <div class="section-toolbar">
+        <h2>Codespaces</h2>
+        <button id="btn-refresh" class="icon-btn" title="更新" aria-label="更新">🔄</button>
+      </div>
+      <div id="codespaces-list" class="card-list">
+        <div class="empty-state">読み込み中…</div>
+      </div>
+    </section>
+
+    <!-- Chat Tab -->
+    <section id="tab-chat" class="tab-content" role="tabpanel" aria-label="AIチャット">
+      <div class="chat-toolbar">
+        <select id="model-select" class="model-select" aria-label="AIモデル選択">
+          <option value="gpt-4o">GPT-4o</option>
+          <option value="gpt-4o-mini">GPT-4o mini</option>
+          <option value="meta-llama-3.1-70b-instruct">Llama 3.1 70B</option>
+          <option value="Phi-3.5-mini-instruct">Phi-3.5 mini</option>
+        </select>
+        <button id="btn-clear-chat" class="icon-btn" title="チャットクリア" aria-label="チャットクリア">🗑️</button>
+      </div>
+      <div id="chat-messages" class="chat-messages" aria-live="polite" aria-label="チャット履歴">
+        <div class="chat-welcome">
+          <p>👋 GitHub Models を使った AI アシスタントです。</p>
+          <p>コードの質問、デバッグ、設計相談など、何でも聞いてください。</p>
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <div class="chat-input-wrapper">
+          <textarea
+            id="chat-input"
+            class="chat-input"
+            placeholder="メッセージを入力… (Shift+Enter で改行)"
+            rows="1"
+            aria-label="メッセージ入力"
+          ></textarea>
+          <button id="btn-send" class="btn-send" title="送信" aria-label="送信">▶</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Code Viewer Tab -->
+    <section id="tab-viewer" class="tab-content" role="tabpanel" aria-label="コードビューア">
+      <div class="viewer-search-bar">
+        <input type="text" id="repo-input" placeholder="owner/repo" class="repo-input" aria-label="リポジトリ (owner/repo)">
+        <input type="text" id="ref-input" placeholder="branch / tag" class="ref-input" value="main" aria-label="ブランチまたはタグ">
+        <button id="btn-load-repo" class="btn-primary-sm">読み込む</button>
+      </div>
+      <div class="viewer-layout" id="viewer-layout">
+        <div id="file-tree-panel" class="file-tree-panel">
+          <div class="empty-state">リポジトリを入力してください</div>
+        </div>
+        <div id="code-panel" class="code-panel">
+          <div class="code-header" id="code-header"></div>
+          <div id="code-display" class="code-display">
+            <div class="empty-state">ファイルを選択してください</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Settings Tab -->
+    <section id="tab-settings" class="tab-content" role="tabpanel" aria-label="設定">
+      <h2>設定</h2>
+
+      <div class="settings-card">
+        <h3>GitHub 認証</h3>
+        <label for="settings-pat">Personal Access Token</label>
+        <input
+          type="password"
+          id="settings-pat"
+          class="settings-input"
+          placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+          autocomplete="off"
+        >
+        <p class="hint">
+          必要なスコープ：<br>
+          • <code>codespaces</code> — Codespaces の一覧・操作<br>
+          • <code>repo</code> — コードの閲覧<br>
+          • <code>models:read</code> — GitHub Models（AI チャット）
+        </p>
+        <div class="settings-actions">
+          <button id="btn-save-pat" class="btn-primary">保存</button>
+          <button id="btn-clear-pat" class="btn-danger">クリア</button>
+        </div>
+        <div id="user-info" class="user-info"></div>
+      </div>
+
+      <div class="settings-card">
+        <h3>AI チャット設定</h3>
+        <label for="system-prompt">システムプロンプト</label>
+        <textarea id="system-prompt" class="settings-textarea" rows="4" aria-label="システムプロンプト"></textarea>
+        <button id="btn-save-system-prompt" class="btn-primary">保存</button>
+      </div>
+
+      <div class="settings-card">
+        <h3>このアプリについて</h3>
+        <p class="hint" style="line-height:1.7">
+          スマートフォンから GitHub Codespaces を快適に使うための Web アプリです。<br>
+          認証情報はブラウザの localStorage にのみ保存され、外部サーバーには送信されません。<br>
+          ソースコード: <a href="https://github.com/tanashou1/portable-codespaces" target="_blank" rel="noopener" style="color:var(--blue)">GitHub</a>
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== Bottom Navigation ===== -->
+  <nav class="bottom-nav" role="navigation" aria-label="メインナビゲーション">
+    <button class="nav-item active" data-tab="codespaces" aria-label="Codespaces">
+      <span class="nav-icon" aria-hidden="true">📦</span>
+      <span class="nav-label">Spaces</span>
+    </button>
+    <button class="nav-item" data-tab="chat" aria-label="AIチャット">
+      <span class="nav-icon" aria-hidden="true">💬</span>
+      <span class="nav-label">チャット</span>
+    </button>
+    <button class="nav-item" data-tab="viewer" aria-label="コードビューア">
+      <span class="nav-icon" aria-hidden="true">📄</span>
+      <span class="nav-label">コード</span>
+    </button>
+    <button class="nav-item" data-tab="settings" aria-label="設定">
+      <span class="nav-icon" aria-hidden="true">⚙️</span>
+      <span class="nav-label">設定</span>
+    </button>
+  </nav>
+
+  <!-- Vendored third-party scripts (no external CDN dependencies) -->
+  <script src="vendors/highlight.min.js"></script>
+  <script src="vendors/marked.min.js"></script>
+  <script src="vendors/purify.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
