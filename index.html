@@ -20,7 +20,8 @@
       <p>GitHubのPersonal Access Tokenを入力してください。</p>
       <p class="hint">
         必要なスコープ:<br>
-        <code>codespaces</code>（Codespaces一覧）、<code>repo</code>（コード閲覧）、<code>models:read</code>（AI チャット）
+        <code>codespaces</code>（Codespaces一覧）、<code>repo</code>（コード閲覧）、<code>models:read</code>（GitHub Models AI チャット）<br>
+        ※ Claude / o1 など Copilot モデルを使う場合は <code>copilot</code> スコープも必要です。
       </p>
       <input type="password" id="modal-pat" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" aria-label="Personal Access Token">
       <button id="modal-save" class="btn-primary">開始する</button>
@@ -52,10 +53,19 @@
     <section id="tab-chat" class="tab-content" role="tabpanel" aria-label="AIチャット">
       <div class="chat-toolbar">
         <select id="model-select" class="model-select" aria-label="AIモデル選択">
-          <option value="gpt-4o">GPT-4o</option>
-          <option value="gpt-4o-mini">GPT-4o mini</option>
-          <option value="meta-llama-3.1-70b-instruct">Llama 3.1 70B</option>
-          <option value="Phi-3.5-mini-instruct">Phi-3.5 mini</option>
+          <optgroup label="GitHub Models (models:read)">
+            <option value="gpt-4o">GPT-4o</option>
+            <option value="gpt-4o-mini">GPT-4o mini</option>
+            <option value="meta-llama-3.1-70b-instruct">Llama 3.1 70B</option>
+            <option value="Phi-3.5-mini-instruct">Phi-3.5 mini</option>
+          </optgroup>
+          <optgroup label="GitHub Copilot (copilot スコープ必須)">
+            <option value="claude-3.5-sonnet">Claude 3.5 Sonnet</option>
+            <option value="claude-3-haiku">Claude 3 Haiku</option>
+            <option value="o1-mini">OpenAI o1 mini</option>
+            <option value="o1-preview">OpenAI o1 preview</option>
+            <option value="o3-mini">OpenAI o3 mini</option>
+          </optgroup>
         </select>
         <button id="btn-clear-chat" class="icon-btn" title="チャットクリア" aria-label="チャットクリア">🗑️</button>
       </div>
@@ -117,7 +127,8 @@
           必要なスコープ：<br>
           • <code>codespaces</code> — Codespaces の一覧・操作<br>
           • <code>repo</code> — コードの閲覧<br>
-          • <code>models:read</code> — GitHub Models（AI チャット）
+          • <code>models:read</code> — GitHub Models（GPT-4o / Llama / Phi）<br>
+          • <code>copilot</code> — GitHub Copilot モデル（Claude / o1 など）
         </p>
         <div class="settings-actions">
           <button id="btn-save-pat" class="btn-primary">保存</button>

@@ -75,13 +75,24 @@
   }
 
   /* ============================================================
-     GITHUB MODELS CHAT (streaming)
+     GITHUB MODELS / COPILOT CHAT (streaming)
      ============================================================ */
+
+  // Models served via GitHub Copilot API (requires `copilot` scope)
+  const COPILOT_MODELS = new Set([
+    'claude-3.5-sonnet',
+    'claude-3-haiku',
+    'o1-mini',
+    'o1-preview',
+    'o3-mini',
+  ]);
+
   async function streamChat(messages, model, onChunk) {
     if (!state.token) throw new Error('トークンが設定されていません');
-    const res = await fetch(
-      'https://models.inference.ai.azure.com/chat/completions',
-      {
+    const endpoint = COPILOT_MODELS.has(model)
+      ? 'https://api.githubcopilot.com/chat/completions'
+      : 'https://models.inference.ai.azure.com/chat/completions';
+    const res = await fetch(endpoint, {
         method: 'POST',
         headers: {
           Authorization: 'Bearer ' + state.token,
@@ -363,11 +374,14 @@
 
       state.messages.push({ role: 'assistant', content: assistantText });
     } catch (e) {
+      const isCopilot = COPILOT_MODELS.has(model);
+      const scopeHint = isCopilot
+        ? 'トークンに `copilot` スコープがあるか、GitHub Copilot サブスクリプションが有効か確認してください。'
+        : 'トークンに `models:read` スコープがあるか確認してください。';
       const errText =
         'エラーが発生しました: ' +
         e.message +
-        '\n\nGitHub Models APIへのアクセスに失敗しました。' +
-        'トークンに `models:read` スコープがあるか確認してください。';
+        '\n\nAI APIへのアクセスに失敗しました。' + scopeHint;
       state.messages.push({ role: 'assistant', content: errText });
     }
 
