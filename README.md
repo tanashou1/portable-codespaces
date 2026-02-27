@@ -3,7 +3,7 @@
 スマートフォンから **GitHub Codespaces** を快適に使うための、サーバーレス Web アプリです。  
 GitHub Pages でそのまま動作します。外部サーバーへの通信は一切ありません。
 
-👉 **[デモを開く](https://tanashou1.github.io/portable-codespaces/)**
+👉 **[デモを開く](https://tanashou1.github.io/portable-codespaces/)** — https://tanashou1.github.io/portable-codespaces/
 
 ---
 
